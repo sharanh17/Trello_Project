@@ -200,7 +200,7 @@ const BoardDetails = () => {
                   : list
               )
             );
-          } else {
+          } else { 
             console.error("Error creating card:", point);
           }
         }

@@ -25,8 +25,6 @@ const PointCard = ({
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [selectedCardID, setSelectedCardID] = useState(null);
 
-
-
   return (
     <Card
       sx={{
