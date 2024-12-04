@@ -1,26 +1,40 @@
-
 import { useState, useContext, useEffect } from "react";
 import { ApiContext } from "./context/apiContext";
 import BackButton from "./BackButton";
 import CreateListForm from "./CreateListForm";
 import PointCard from "./PointCard";
 import ChecklistModal from "./ChecklistModal";
-import { Container, Box, Button } from "@mui/material";
+import { Container, Box, Button, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const BoardDetails = () => {
   const { boardId } = useParams();
   const { API_KEY, TOKEN } = useContext(ApiContext);
   const [lists, setLists] = useState([]);
+  const [board, setBoard] = useState([]);
   const [listTitle, setListTitle] = useState("");
   const [points, setPoints] = useState([""]);
   const [showForm, setShowForm] = useState(false);
   const [newPoint, setNewPoint] = useState("");
   const [isAddingPoint, setIsAddingPoint] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPoint, setSelectedPoint] = useState(null);
+  const boardRedux = useSelector((store) => store.board.data);
+
+  // const [selectedPoint, setSelectedPoint] = useState(null);
 
   useEffect(() => {
+    const fetchBoard = async () => {
+      try {
+        const response = await fetch(
+          `https://api.trello.com/1/boards/${boardId}?key=${API_KEY}&token=${TOKEN}`
+        );
+        const data = await response.json();
+        setBoard(data);
+      } catch (error) {
+        console.error("Error fetching lists:", error);
+      }
+    };
     const fetchLists = async () => {
       try {
         const response = await fetch(
@@ -46,6 +60,12 @@ const BoardDetails = () => {
     };
 
     fetchLists();
+    if (boardRedux.length > 0) {
+      const currentBoard = boardRedux.find((board) => board.id === boardId);
+      setBoard(currentBoard);
+    } else {
+      fetchBoard();
+    }
   }, [boardId]);
 
   const addPoint = async (listId) => {
@@ -195,25 +215,30 @@ const BoardDetails = () => {
   };
 
   return (
-    <Container>
-      <BackButton />
-      {!showForm && (
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{
-            mt: 2,
-            backgroundColor: "#4caf50",
-            "&:hover": { backgroundColor: "#388e3c" },
-            padding: "8px 16px",
-            fontSize: "16px",
-            borderRadius: "8px",
-          }}
-          onClick={() => setShowForm(true)}
-        >
-          Create List
-        </Button>
-      )}
+    <Box>
+      <Box py={2} bgcolor={"grey"}>
+        <Typography variant="h4">{board.name}</Typography>
+      </Box>
+      <Box>
+        <BackButton />
+        {!showForm && (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              mt: 2,
+              backgroundColor: "#4caf50",
+              "&:hover": { backgroundColor: "#388e3c" },
+              padding: "8px 16px",
+              fontSize: "16px",
+              borderRadius: "8px",
+            }}
+            onClick={() => setShowForm(true)}
+          >
+            Create List
+          </Button>
+        )}
+      </Box>
 
       {showForm && (
         <CreateListForm
@@ -229,7 +254,7 @@ const BoardDetails = () => {
       <Box
         sx={{
           display: "flex",
-          alignItems:"flex-start",
+          alignItems: "flex-start",
           gap: 2,
           mt: 4,
           justifyContent: "flex-start",
@@ -246,7 +271,6 @@ const BoardDetails = () => {
             addPoint={addPoint}
             deletePoint={deletePoint}
             deleteList={deleteList}
-            
           />
         ))}
       </Box>
@@ -258,7 +282,7 @@ const BoardDetails = () => {
           boardId={boardId}
         />
       )}
-    </Container>
+    </Box>
   );
 };
 

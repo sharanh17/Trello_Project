@@ -12,11 +12,15 @@ import {
   IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useDispatch, useSelector } from "react-redux";
+import { addBoard, deleteBoard } from "../Slices/boardSlice";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(false);
-  const [boardData, setBoardData] = useState([]);
+  // const [boardData, setBoardData] = useState([]);
   const { API_KEY, TOKEN } = useContext(ApiContext);
+  const boardData = useSelector((store) => store.board.data);
+  const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -37,7 +41,7 @@ const Dashboard = () => {
         `https://api.trello.com/1/members/me/boards?key=${API_KEY}&token=${TOKEN}`
       );
       const data = await response.json();
-      setBoardData(data);
+      dispatch(addBoard(data));
     } catch (error) {
       console.error(error);
     } finally {
@@ -58,7 +62,8 @@ const Dashboard = () => {
       );
       if (response.ok) {
         const newBoard = await response.json();
-        setBoardData((prevData) => [...prevData, newBoard]);
+        // setBoardData((prevData) => [...prevData, newBoard]);
+        dispatch(addBoard(newBoard));
         setAnchorEl(null);
       }
     } catch (e) {
@@ -66,7 +71,7 @@ const Dashboard = () => {
     }
   }
 
-  async function deleteBoard(boardId) {
+  async function handledeleteBoard(boardId) {
     try {
       const response = await fetch(
         `https://api.trello.com/1/boards/${boardId}?key=${API_KEY}&token=${TOKEN}`,
@@ -75,16 +80,14 @@ const Dashboard = () => {
         }
       );
       if (response.ok) {
-        setBoardData((prevData) =>
-          prevData.filter((board) => board.id !== boardId)
-        );
+        dispatch(deleteBoard(boardId));
       }
     } catch (error) {
       console.error("Error deleting board:", error);
     }
   }
 
-  function addBoard(event) {
+  function handleaddBoard(event) {
     const value = event.target.value;
     if (event.which === 13) {
       addData(value);
@@ -117,24 +120,22 @@ const Dashboard = () => {
             justifyContent: "center",
           }}
         >
-          {/* Button to Add New Board */}
           <Button
             onClick={handleClick}
             sx={{
               width: 200,
               height: 100,
-              backgroundColor: "#FFC1E3", // Light pink
+              backgroundColor: "#FFC1E3",
               color: "black",
               fontSize: "16px",
               fontWeight: "bold",
               border: "none",
-              "&:hover": { backgroundColor: "#FFA6D4" }, // Slightly darker pink
+              "&:hover": { backgroundColor: "#FFA6D4" },
             }}
           >
             + Add Board
           </Button>
 
-          {/* Popover for Adding a New Board */}
           <Popover
             id={id}
             open={open}
@@ -151,12 +152,11 @@ const Dashboard = () => {
                 label="Board title"
                 variant="outlined"
                 fullWidth
-                onKeyDown={addBoard}
+                onKeyDown={handleaddBoard}
               />
             </Box>
           </Popover>
 
-          {/* Existing Boards */}
           {boardData.map((data) => (
             <Paper
               key={data.id}
@@ -167,7 +167,7 @@ const Dashboard = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                backgroundColor: "#FFC1E3", // Light pink
+                backgroundColor: "#FFC1E3",
                 color: "black",
                 borderRadius: 4,
                 padding: "10px",
@@ -196,7 +196,7 @@ const Dashboard = () => {
               </Link>
               <IconButton
                 aria-label="delete"
-                onClick={() => deleteBoard(data.id)}
+                onClick={() => handledeleteBoard(data.id)}
                 sx={{ color: "black" }}
               >
                 <DeleteIcon />
