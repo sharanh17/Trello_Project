@@ -18,12 +18,12 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
   const [newChecklistName, setNewChecklistName] = useState("");
   const [newItems, setNewItems] = useState({});
   const [error, setError] = useState(null);
-  const { API_KEY, TOKEN } = useContext(ApiContext);
+  const { API_KEY, TOKEN, API_URL } = useContext(ApiContext);
 
   const handleCreateChecklist = async () => {
     if (!newChecklistName.trim()) return;
 
-    const url = `https://api.trello.com/1/checklists?idCard=${cardId}&name=${newChecklistName}&key=${API_KEY}&token=${TOKEN}`;
+    const url = `${API_URL}checklists?idCard=${cardId}&name=${newChecklistName}&key=${API_KEY}&token=${TOKEN}`;
 
     try {
       const response = await fetch(url, {
@@ -56,7 +56,7 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
   const handleAddItem = async (checklistId) => {
     const item = newItems[checklistId]?.trim();
     if (item) {
-      const url = `https://api.trello.com/1/checklists/${checklistId}/checkItems?name=${item}&key=${API_KEY}&token=${TOKEN}`;
+      const url = `${API_URL}checklists/${checklistId}/checkItems?name=${item}&key=${API_KEY}&token=${TOKEN}`;
 
       try {
         const response = await fetch(url, {
@@ -72,7 +72,7 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
                 ...checklist,
                 items: [
                   ...checklist.items,
-                  { id: data.id, name: data.name, state: "incomplete" }, 
+                  { id: data.id, name: data.name, state: "incomplete" },
                 ],
               };
             }
@@ -96,6 +96,7 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
         method: "PUT",
       });
       const data = await response.json();
+      console.log(data);
     } catch (e) {
       console.log(e);
     }
@@ -105,7 +106,7 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
     const updatedChecklists = checklists.map((checklist) => {
       if (checklist.id === checklistId) {
         const state = !isChecked ? "complete" : "incomplete";
-        const url = `https://api.trello.com/1/cards/${cardId}/checkItem/${itemId}?state=${state}&key=${API_KEY}&token=${TOKEN}`;
+        const url = `${API_URL}cards/${cardId}/checkItem/${itemId}?state=${state}&key=${API_KEY}&token=${TOKEN}`;
         updatedChecklistItems(url);
         return {
           ...checklist,
@@ -142,7 +143,7 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
   };
 
   async function getChecklistItems() {
-    const url = `https://api.trello.com/1/cards/${cardId}/checklists?key=${API_KEY}&token=${TOKEN}`;
+    const url = `${API_URL}cards/${cardId}/checklists?key=${API_KEY}&token=${TOKEN}`;
 
     try {
       const response = await fetch(url);
@@ -150,7 +151,7 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
       const newChecklistItems = await Promise.all(
         data.map(async (checklist) => {
           const itemsResponse = await fetch(
-            `https://api.trello.com/1/checklists/${checklist.id}/checkItems?key=${API_KEY}&token=${TOKEN}`
+            `${API_URL}checklists/${checklist.id}/checkItems?key=${API_KEY}&token=${TOKEN}`
           );
           const items = await itemsResponse.json();
           return {
@@ -183,7 +184,7 @@ const ChecklistModal = ({ cardId, point, onClose }) => {
         }}
       >
         <Typography variant="h6" sx={{ mb: 2 }}>
-          Checklists for "{point}"
+          Checklists for {point}
         </Typography>
 
         {error && (

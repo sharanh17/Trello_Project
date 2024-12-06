@@ -34,7 +34,6 @@ const PointCard = ({
         borderRadius: 1,
         flexShrink: 0,
         flexGrow: 0,
-        width: "200px",
       }}
     >
       <Stack
@@ -50,7 +49,7 @@ const PointCard = ({
         </IconButton>
       </Stack>
       <Box>
-        {list.points.map(({ name, id }, idx) => (
+        {list.points.map(({ name, id }) => (
           <Box key={id} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <Typography
               variant="body2"
@@ -106,7 +105,6 @@ const PointCard = ({
         </Box>
       )}
 
-     
       {selectedPoint && (
         <ChecklistModal
           point={selectedPoint}

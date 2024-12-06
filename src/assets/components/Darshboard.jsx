@@ -13,12 +13,12 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
-import { addBoard, deleteBoard } from "../Slices/boardSlice";
+import { addBoard, deleteBoard } from "../slices/boardSlice";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   // const [boardData, setBoardData] = useState([]);
-  const { API_KEY, TOKEN } = useContext(ApiContext);
+  const { API_KEY, TOKEN, API_URL } = useContext(ApiContext);
   const boardData = useSelector((store) => store.board.data);
   const dispatch = useDispatch();
 
@@ -38,7 +38,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://api.trello.com/1/members/me/boards?key=${API_KEY}&token=${TOKEN}`
+        `${API_URL}members/me/boards?key=${API_KEY}&token=${TOKEN}`
       );
       const data = await response.json();
       dispatch(addBoard(data));
@@ -52,7 +52,7 @@ const Dashboard = () => {
   async function addData(name) {
     try {
       const response = await fetch(
-        `https://api.trello.com/1/boards/?name=${name}&key=${API_KEY}&token=${TOKEN}`,
+        `${API_URL}boards/?name=${name}&key=${API_KEY}&token=${TOKEN}`,
         {
           method: "POST",
           headers: {
@@ -74,7 +74,7 @@ const Dashboard = () => {
   async function handledeleteBoard(boardId) {
     try {
       const response = await fetch(
-        `https://api.trello.com/1/boards/${boardId}?key=${API_KEY}&token=${TOKEN}`,
+        `${API_URL}boards/${boardId}?key=${API_KEY}&token=${TOKEN}`,
         {
           method: "DELETE",
         }
